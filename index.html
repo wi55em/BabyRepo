@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#7C6AF7">
+  <meta name="description" content="Track your baby's feedings and diapers">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BabyTrack">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+  <title>Baby Tracker</title>
+</head>
+<body>
+
+  <!-- ══════════════════════════════
+       SETUP SCREEN
+       ══════════════════════════════ -->
+  <div id="screen-setup" class="screen screen-setup">
+    <div class="setup-bg"></div>
+    <div class="setup-container">
+      <div class="setup-hero">
+        <img src="icon.svg" alt="Baby Tracker" class="setup-icon">
+        <h1 class="setup-title">Baby Tracker</h1>
+        <p class="setup-subtitle">Start tracking your baby's journey</p>
+      </div>
+      <form id="setup-form" class="card setup-form">
+        <div class="form-group">
+          <label class="form-label" for="baby-name">Baby's Name</label>
+          <input class="form-input" type="text" id="baby-name"
+                 placeholder="Enter baby's name" required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="birth-date">Date of Birth</label>
+          <input class="form-input" type="date" id="birth-date" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="birth-time">Time of Birth</label>
+          <input class="form-input" type="time" id="birth-time" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">
+          Start Tracking
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       MAIN SCREEN — DAYS LIST
+       ══════════════════════════════ -->
+  <div id="screen-main" class="screen">
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="header-info">
+          <h1 id="header-baby-name" class="header-name">Baby</h1>
+          <span id="header-day-badge" class="header-badge">Day 1</span>
+        </div>
+        <button id="btn-settings" class="icon-btn" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="scroll-area">
+      <div id="days-list" class="days-list"></div>
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════
+       DAY DETAIL SCREEN
+       ══════════════════════════════ -->
+  <div id="screen-day" class="screen">
+    <header class="app-header">
+      <div class="header-inner">
+        <button id="btn-back" class="icon-btn" aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15,18 9,12 15,6"/>
+          </svg>
+        </button>
+        <div class="header-center">
+          <h2 id="day-detail-title" class="header-name">Day 1</h2>
+          <span id="day-detail-date" class="header-badge"></span>
+        </div>
+        <div class="header-spacer"></div>
+      </div>
+    </header>
+
+    <main class="scroll-area">
+      <!-- Diapers Section -->
+      <section class="detail-section">
+        <h3 class="section-title">Diapers</h3>
+        <div class="diaper-row">
+          <div class="diaper-card diaper-wet">
+            <div class="diaper-emoji">💧</div>
+            <div class="diaper-name">Wet</div>
+            <div class="counter">
+              <button class="counter-btn" id="wet-minus" aria-label="Decrease">−</button>
+              <span id="wet-count" class="counter-val">0</span>
+              <button class="counter-btn" id="wet-plus" aria-label="Increase">+</button>
+            </div>
+          </div>
+          <div class="diaper-card diaper-dirty">
+            <div class="diaper-emoji">💩</div>
+            <div class="diaper-name">Dirty</div>
+            <div class="counter">
+              <button class="counter-btn" id="dirty-minus" aria-label="Decrease">−</button>
+              <span id="dirty-count" class="counter-val">0</span>
+              <button class="counter-btn" id="dirty-plus" aria-label="Increase">+</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feedings Section -->
+      <section class="detail-section">
+        <div class="section-header">
+          <h3 class="section-title">Breastfeeding</h3>
+          <button id="btn-add-feeding" class="btn btn-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Session
+          </button>
+        </div>
+        <div id="feedings-list" class="feedings-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════
+       MODAL — SETTINGS
+       ══════════════════════════════ -->
+  <div id="modal-settings" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="settings-modal-title" class="modal-title">Settings</h3>
+        <button class="modal-close" id="btn-close-settings" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <form id="settings-form">
+        <div class="form-group">
+          <label class="form-label" for="settings-name">Baby's Name</label>
+          <input class="form-input" type="text" id="settings-name" required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="settings-date">Date of Birth</label>
+          <input class="form-input" type="date" id="settings-date" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="settings-time">Time of Birth</label>
+          <input class="form-input" type="time" id="settings-time" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="btn-cancel-settings">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       MODAL — ADD / EDIT FEEDING
+       ══════════════════════════════ -->
+  <div id="modal-feeding" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="feeding-modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="feeding-modal-title" class="modal-title">Add Session</h3>
+        <button class="modal-close" id="btn-close-feeding" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <form id="feeding-form">
+        <input type="hidden" id="feeding-edit-id">
+        <div class="form-group">
+          <label class="form-label" for="feeding-time">Time</label>
+          <input class="form-input" type="time" id="feeding-time" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="feeding-note">
+            Note
+            <span class="form-optional">(optional)</span>
+          </label>
+          <textarea class="form-input form-textarea" id="feeding-note" rows="3"
+                    placeholder="e.g. Left breast, 15 min, baby seemed content…"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="btn-cancel-feeding">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       MODAL — DELETE CONFIRM
+       ══════════════════════════════ -->
+  <div id="modal-confirm" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal modal-sm">
+      <div class="confirm-icon">🗑️</div>
+      <h3 class="confirm-title">Delete Session?</h3>
+      <p class="confirm-text">This feeding session will be permanently removed.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btn-cancel-delete">Cancel</button>
+        <button class="btn btn-danger" id="btn-confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

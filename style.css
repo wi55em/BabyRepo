@@ -986,3 +986,432 @@ img { max-width: 100%; display: block; }
     background: var(--card);
   }
 }
+
+/* ══════════════════════════════════════════
+   HEADER — BABY SWITCHER
+   ══════════════════════════════════════════ */
+.header-baby-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 4px;
+  border-radius: var(--radius-xs);
+  text-align: left;
+  min-width: 0;
+  transition: background var(--transition);
+}
+
+.header-baby-btn:hover,
+.header-baby-btn:active {
+  background: var(--primary-light);
+}
+
+.header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.header-multi {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.header-chevron-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: transform var(--transition);
+}
+
+.header-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   BABY PICKER MODAL
+   ══════════════════════════════════════════ */
+.modal-baby-picker {
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.picker-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  max-height: 45vh;
+  -webkit-overflow-scrolling: touch;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition),
+              transform var(--transition);
+}
+
+.picker-item:active {
+  transform: scale(0.98);
+}
+
+.picker-item.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.picker-item-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.picker-item.active .picker-item-avatar {
+  background: var(--primary);
+}
+
+.picker-item-check {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+}
+
+.picker-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.picker-item-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.picker-item-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.picker-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+.picker-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* ══════════════════════════════════════════
+   SHARE MODAL
+   ══════════════════════════════════════════ */
+.share-desc {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+
+.share-link-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.share-link-text {
+  flex: 1;
+  font-size: 12px;
+  color: var(--primary);
+  word-break: break-all;
+  line-height: 1.4;
+  min-width: 0;
+  font-family: monospace;
+}
+
+.share-link-row .btn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.share-warning {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.share-no-firebase {
+  font-size: 13px;
+  color: var(--text-2);
+  background: var(--dirty-bg);
+  border: 1.5px solid var(--dirty-border);
+  padding: 12px 14px;
+  border-radius: var(--radius-xs);
+  line-height: 1.55;
+  margin-top: 12px;
+}
+
+.share-no-firebase code {
+  font-family: monospace;
+  font-size: 12px;
+  background: rgba(0,0,0,0.07);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ══════════════════════════════════════════
+   JOIN MODAL
+   ══════════════════════════════════════════ */
+.join-baby-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--feed-bg);
+  border: 1.5px solid #A7F3D0;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+
+.join-baby-icon {
+  font-size: 34px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.join-found-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.join-found-born {
+  font-size: 13px;
+  color: var(--text-2);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* ══════════════════════════════════════════
+   SETUP SCREEN — BACK BUTTON
+   ══════════════════════════════════════════ */
+.setup-back {
+  position: absolute;
+  top: calc(14px + var(--safe-t));
+  left: 16px;
+  z-index: 10;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.25);
+  color: white;
+  transition: background var(--transition);
+}
+
+.setup-back:hover,
+.setup-back:active {
+  background: rgba(255,255,255,0.4);
+}
+
+/* ══════════════════════════════════════════
+   COUNTER VALUE — BOUNCE ANIMATION
+   ══════════════════════════════════════════ */
+@keyframes counterBounce {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.counter-val {
+  transition: transform 0.15s ease;
+}
+
+.counter-val.bounce {
+  animation: counterBounce 0.25s ease-out both;
+}
+
+/* ══════════════════════════════════════════
+   LOADING SPINNER (for async operations)
+   ══════════════════════════════════════════ */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ══════════════════════════════════════════
+   SYNC INDICATOR
+   ══════════════════════════════════════════ */
+.sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--feed);
+  display: inline-block;
+  margin-left: 6px;
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE IMPROVEMENTS
+   ══════════════════════════════════════════ */
+
+/* Ensure tap targets are at least 44×44 on mobile */
+@media (max-width: 380px) {
+  .counter-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+  }
+
+  .counter-val {
+    font-size: 20px;
+    min-width: 32px;
+  }
+
+  .diaper-card {
+    padding: 14px 8px;
+  }
+
+  .diaper-emoji {
+    font-size: 26px;
+  }
+
+  .btn-add {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  .feeding-item {
+    padding: 10px 10px;
+    gap: 8px;
+  }
+
+  .feeding-time {
+    font-size: 13px;
+    padding: 3px 8px;
+  }
+
+  .day-card-stats {
+    padding: 8px 12px 12px;
+  }
+
+  .day-stat {
+    padding: 6px 4px;
+  }
+}
+
+/* Landscape phones */
+@media (max-height: 500px) and (orientation: landscape) {
+  .setup-container {
+    padding-top: 16px;
+    padding-bottom: calc(16px + var(--safe-b));
+  }
+
+  .setup-hero {
+    padding-top: 8px;
+  }
+
+  .setup-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .setup-title {
+    font-size: 22px;
+  }
+
+  .modal {
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+}
+
+/* Dark mode additions for new components */
+@media (prefers-color-scheme: dark) {
+  .picker-item.active {
+    background: rgba(149,128,255,0.15);
+  }
+
+  .join-baby-card {
+    background: rgba(52,211,153,0.08);
+    border-color: rgba(52,211,153,0.3);
+  }
+
+  .share-no-firebase {
+    background: rgba(251,191,36,0.08);
+    border-color: rgba(251,191,36,0.25);
+  }
+
+  .share-link-row {
+    background: var(--bg);
+  }
+
+  .share-no-firebase code {
+    background: rgba(255,255,255,0.1);
+  }
+}

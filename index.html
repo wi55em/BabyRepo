@@ -20,11 +20,17 @@
        ══════════════════════════════ -->
   <div id="screen-setup" class="screen screen-setup">
     <div class="setup-bg"></div>
+    <button id="setup-back-btn" class="setup-back hidden" aria-label="Back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+        <polyline points="15,18 9,12 15,6"/>
+      </svg>
+    </button>
     <div class="setup-container">
       <div class="setup-hero">
         <img src="icon.svg" alt="Baby Tracker" class="setup-icon">
-        <h1 class="setup-title">Baby Tracker</h1>
-        <p class="setup-subtitle">Start tracking your baby's journey</p>
+        <h1 id="setup-title" class="setup-title">Baby Tracker</h1>
+        <p id="setup-subtitle" class="setup-subtitle">Start tracking your baby's journey</p>
       </div>
       <form id="setup-form" class="card setup-form">
         <div class="form-group">
@@ -40,7 +46,7 @@
           <label class="form-label" for="birth-time">Time of Birth</label>
           <input class="form-input" type="time" id="birth-time" required>
         </div>
-        <button type="submit" class="btn btn-primary btn-full">
+        <button type="submit" id="setup-submit-btn" class="btn btn-primary btn-full">
           Start Tracking
         </button>
       </form>
@@ -53,19 +59,40 @@
   <div id="screen-main" class="screen">
     <header class="app-header">
       <div class="header-inner">
-        <div class="header-info">
-          <h1 id="header-baby-name" class="header-name">Baby</h1>
-          <span id="header-day-badge" class="header-badge">Day 1</span>
-        </div>
-        <button id="btn-settings" class="icon-btn" aria-label="Settings" title="Settings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        <button id="btn-switch-baby" class="header-baby-btn" aria-label="Switch baby">
+          <div class="header-info">
+            <h1 id="header-baby-name" class="header-name">Baby</h1>
+            <div class="header-meta">
+              <span id="header-day-badge" class="header-badge">Day 1</span>
+              <span id="header-baby-count" class="header-multi hidden"></span>
+            </div>
+          </div>
+          <svg class="header-chevron-icon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6,9 12,15 18,9"/>
           </svg>
         </button>
+        <div class="header-actions">
+          <button id="btn-share" class="icon-btn" aria-label="Share tracker" title="Share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+          <button id="btn-settings" class="icon-btn" aria-label="Settings" title="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </header>
-
     <main class="scroll-area">
       <div id="days-list" class="days-list"></div>
     </main>
@@ -78,7 +105,8 @@
     <header class="app-header">
       <div class="header-inner">
         <button id="btn-back" class="icon-btn" aria-label="Back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15,18 9,12 15,6"/>
           </svg>
         </button>
@@ -89,9 +117,7 @@
         <div class="header-spacer"></div>
       </div>
     </header>
-
     <main class="scroll-area">
-      <!-- Diapers Section -->
       <section class="detail-section">
         <h3 class="section-title">Diapers</h3>
         <div class="diaper-row">
@@ -115,13 +141,12 @@
           </div>
         </div>
       </section>
-
-      <!-- Feedings Section -->
       <section class="detail-section">
         <div class="section-header">
           <h3 class="section-title">Breastfeeding</h3>
           <button id="btn-add-feeding" class="btn btn-add">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round">
               <line x1="12" y1="5" x2="12" y2="19"/>
               <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
@@ -134,14 +159,128 @@
   </div>
 
   <!-- ══════════════════════════════
+       MODAL — BABY PICKER
+       ══════════════════════════════ -->
+  <div id="modal-baby-picker" class="modal-overlay hidden" role="dialog" aria-modal="true"
+       aria-labelledby="baby-picker-title">
+    <div class="modal modal-baby-picker">
+      <div class="modal-header">
+        <h3 id="baby-picker-title" class="modal-title">My Babies</h3>
+        <button class="modal-close" id="btn-close-baby-picker" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div id="picker-list" class="picker-list"></div>
+      <div class="picker-footer">
+        <button id="btn-picker-add" class="btn btn-primary btn-full">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" width="16" height="16">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add New Baby
+        </button>
+        <button id="btn-picker-join" class="btn btn-ghost btn-full">
+          Join via Shared Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       MODAL — SHARE
+       ══════════════════════════════ -->
+  <div id="modal-share" class="modal-overlay hidden" role="dialog" aria-modal="true"
+       aria-labelledby="share-modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="share-modal-title" class="modal-title">Share Tracker</h3>
+        <button class="modal-close" id="btn-close-share" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <p class="share-desc">
+        Anyone with this link can view and contribute to
+        <strong id="share-baby-name"></strong>'s tracker.
+      </p>
+      <div id="share-link-row" class="share-link-row">
+        <span id="share-link-text" class="share-link-text"></span>
+        <button id="btn-copy-link" class="btn btn-primary">Copy</button>
+      </div>
+      <p class="share-warning">⚠️ Keep this link private — anyone with it can edit the tracker.</p>
+      <div id="share-no-firebase" class="share-no-firebase hidden">
+        <strong>Sharing not enabled.</strong> Fill in <code>firebase-config.js</code> to unlock
+        cross-device sync and shareable links.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       MODAL — JOIN
+       ══════════════════════════════ -->
+  <div id="modal-join" class="modal-overlay hidden" role="dialog" aria-modal="true"
+       aria-labelledby="join-modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="join-modal-title" class="modal-title">Join Shared Tracker</h3>
+        <button class="modal-close" id="btn-close-join" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Step 1: enter link -->
+      <div id="join-form-view">
+        <div class="form-group">
+          <label class="form-label" for="join-input">Paste share link</label>
+          <input class="form-input" type="url" id="join-input"
+                 placeholder="https://…?b=abc123" autocomplete="off">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="btn-cancel-join">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btn-join-lookup">Find Tracker</button>
+        </div>
+      </div>
+
+      <!-- Step 2: confirm -->
+      <div id="join-confirm-view" class="hidden">
+        <div class="join-baby-card">
+          <div class="join-baby-icon">👶</div>
+          <div>
+            <div class="join-found-name" id="join-found-name"></div>
+            <div class="join-found-born" id="join-found-born"></div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="btn-join-back">Back</button>
+          <button type="button" class="btn btn-primary" id="btn-join-confirm">Join Tracker</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
        MODAL — SETTINGS
        ══════════════════════════════ -->
-  <div id="modal-settings" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+  <div id="modal-settings" class="modal-overlay hidden" role="dialog" aria-modal="true"
+       aria-labelledby="settings-modal-title">
     <div class="modal">
       <div class="modal-header">
         <h3 id="settings-modal-title" class="modal-title">Settings</h3>
         <button class="modal-close" id="btn-close-settings" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -171,12 +310,14 @@
   <!-- ══════════════════════════════
        MODAL — ADD / EDIT FEEDING
        ══════════════════════════════ -->
-  <div id="modal-feeding" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="feeding-modal-title">
+  <div id="modal-feeding" class="modal-overlay hidden" role="dialog" aria-modal="true"
+       aria-labelledby="feeding-modal-title">
     <div class="modal">
       <div class="modal-header">
         <h3 id="feeding-modal-title" class="modal-title">Add Session</h3>
         <button class="modal-close" id="btn-close-feeding" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -190,8 +331,7 @@
         </div>
         <div class="form-group">
           <label class="form-label" for="feeding-note">
-            Note
-            <span class="form-optional">(optional)</span>
+            Note <span class="form-optional">(optional)</span>
           </label>
           <textarea class="form-input form-textarea" id="feeding-note" rows="3"
                     placeholder="e.g. Left breast, 15 min, baby seemed content…"></textarea>
@@ -219,9 +359,29 @@
     </div>
   </div>
 
-  <!-- Toast notification -->
+  <!-- Toast -->
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
+  <!-- Firebase SDK (compat) — loaded only if config is present -->
+  <script src="firebase-config.js"></script>
+  <script>
+    // Only load Firebase SDK if a projectId is configured
+    (function() {
+      var cfg = window.FIREBASE_CONFIG;
+      if (!cfg || !cfg.projectId) return;
+      var s1 = document.createElement('script');
+      s1.src = 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js';
+      s1.async = false;
+      document.head.appendChild(s1);
+      var s2 = document.createElement('script');
+      s2.src = 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js';
+      s2.async = false;
+      document.head.appendChild(s2);
+    })();
+  </script>
+  <script src="db.js"></script>
+  <script src="utils.js"></script>
+  <script src="views.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -1,9 +1,13 @@
-const CACHE_NAME = 'baby-tracker-v1';
+const CACHE_NAME = 'baby-tracker-v2';
 const ASSETS = [
   '/',
   '/index.html',
   '/style.css',
+  '/db.js',
+  '/utils.js',
+  '/views.js',
   '/app.js',
+  '/firebase-config.js',
   '/manifest.json',
   '/icon.svg'
 ];

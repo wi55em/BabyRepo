@@ -67,24 +67,32 @@ async function handleSetupSubmit(e) {
 
 /* ════════════════════════════════════════
    CLOUD INDICATOR
+   Traffic-light style, driven by db.js's CLOUD_STATE machine:
+     hidden    — Firebase not configured (no chip shown)
+     pending   — pulsing orange  "Connecting…"
+     connected — pulsing green   "Sharing on"
+     offline   — solid red       "Offline"
+     error     — solid red       "Connection failed"
    ════════════════════════════════════════ */
-function updateCloudIndicator() {
+const CLOUD_UI = {
+  pending:   { label: 'Connecting…',       title: 'Connecting to cloud…' },
+  connected: { label: 'Sharing on',        title: 'Cloud sync active — data syncs across all devices' },
+  offline:   { label: 'Offline',           title: 'Offline — changes will sync when reconnected' },
+  error:     { label: 'Connection failed', title: 'Cloud connection failed — check Firebase configuration' },
+};
+
+function renderCloudIndicator(state) {
   const el = document.getElementById('cloud-indicator');
   if (!el) return;
-  if (!USE_FIREBASE) {
-    el.classList.add('hidden');
-    return;
-  }
-  const online = navigator.onLine;
-  el.classList.remove('hidden', 'cloud-offline');
-  if (!online) {
-    el.classList.add('cloud-offline');
-    el.title       = 'Offline — changes will sync when reconnected';
-    el.querySelector('.cloud-label').textContent = 'Offline';
-  } else {
-    el.title       = 'Cloud sync active — data syncs across all devices';
-    el.querySelector('.cloud-label').textContent = 'Sharing on';
-  }
+  el.classList.remove('cloud-pending', 'cloud-connected', 'cloud-offline', 'cloud-error');
+  // Effective state: browser-offline trumps whatever the probe last reported.
+  const effective = (state !== 'hidden' && !navigator.onLine) ? 'offline' : state;
+  const ui = CLOUD_UI[effective];
+  if (!ui) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.classList.add(`cloud-${effective}`);
+  el.title = ui.title;
+  el.querySelector('.cloud-label').textContent = ui.label;
 }
 
 /* ════════════════════════════════════════
@@ -103,7 +111,7 @@ async function showMainScreen() {
   multi.textContent = count > 1 ? `${count} babies` : '';
   multi.classList.toggle('hidden', count <= 1);
 
-  updateCloudIndicator();
+  renderCloudIndicator(getCloudState());
   renderDaysList(ST.token, ST.baby);
   showScreen('screen-main');
 }
@@ -255,48 +263,95 @@ async function handleSettingsSubmit(e) {
 
 /* ════════════════════════════════════════
    DELETE / REMOVE BABY
+
+   Story matrix — decided at prompt time based on live Firestore membership:
+
+     D1  Firebase off (local-only)   → Delete permanently (localStorage only)
+     D2  Firebase on, only me        → Delete permanently (Firestore + local)
+     D3  Firebase on, shared (>1)    → Only: Remove from my device (arrayRemove me)
+     D4  Firebase on, unreachable    → Only: Remove from my device (permanent disabled)
+     D5  Offline delete              → Remove from my device always works locally;
+                                        permanent deletes queue via Firestore
+                                        offline persistence and flush on reconnect.
    ════════════════════════════════════════ */
 let _deleteBabyToken = null;
 
-function promptDeleteBaby(token) {
+async function promptDeleteBaby(token) {
   const baby = getCachedBaby(token);
   if (!baby) return;
   _deleteBabyToken = token;
 
-  const title   = document.getElementById('delete-baby-title');
-  const text    = document.getElementById('delete-baby-text');
-  const permBtn = document.getElementById('btn-delete-baby-perm');
+  const title     = document.getElementById('delete-baby-title');
+  const text      = document.getElementById('delete-baby-text');
+  const permBtn   = document.getElementById('btn-delete-baby-perm');
   const removeBtn = document.getElementById('btn-remove-device-baby');
-
-  const isShared = !!(baby.shared);
-
-  if (isShared) {
-    // Someone else may have the link — only offer local removal
-    title.textContent   = `Remove ${baby.name}?`;
-    text.textContent    = 'This tracker has been shared. Removing it from your device keeps all data intact — others with the link can still access it.';
-    removeBtn.textContent = 'Remove from my device';
-    removeBtn.classList.remove('hidden');
-    permBtn.classList.add('hidden');
-  } else {
-    // Never shared — safe to delete from Firestore entirely
-    title.textContent   = `Delete ${baby.name}?`;
-    text.textContent    = USE_FIREBASE
-      ? 'This tracker has never been shared. All data will be permanently deleted.'
-      : 'All tracking data will be permanently lost.';
-    permBtn.textContent = 'Delete permanently';
-    permBtn.classList.remove('hidden');
-    removeBtn.classList.add('hidden');
-  }
 
   closeModal('modal-settings');
   closeModal('modal-baby-picker');
+
+  // D1 — local-only: one-step permanent delete
+  if (!USE_FIREBASE) {
+    title.textContent     = `Delete ${esc(baby.name)}?`;
+    text.textContent      = 'All tracking data will be permanently removed from this device.';
+    permBtn.textContent   = 'Delete permanently';
+    permBtn.disabled      = false;
+    permBtn.classList.remove('hidden');
+    removeBtn.classList.add('hidden');
+    openModal('modal-delete-baby');
+    return;
+  }
+
+  // Firebase is on — show modal immediately with a "checking" placeholder,
+  // then update it once we've read the server-side member count.
+  title.textContent   = `Delete ${esc(baby.name)}?`;
+  text.textContent    = 'Checking who has access…';
+  permBtn.classList.add('hidden');
+  removeBtn.classList.add('hidden');
   openModal('modal-delete-baby');
+
+  const memberCount = await getBabyMemberCount(token);
+  // If the user already dismissed / switched away, bail out.
+  if (_deleteBabyToken !== token) return;
+
+  if (memberCount === null) {
+    // D4 — Firestore unreachable. Only safe option is local removal.
+    title.textContent     = `Remove ${esc(baby.name)}?`;
+    text.textContent      = "Can't verify who else has access right now (offline). You can remove this tracker from this device — it will stay intact on the cloud for anyone else who has the link. Permanent deletion is disabled until you reconnect.";
+    removeBtn.textContent = 'Remove from my device';
+    removeBtn.classList.remove('hidden');
+    permBtn.classList.add('hidden');
+    return;
+  }
+
+  if (memberCount > 1) {
+    // D3 — others still have access; never wipe their data.
+    const others = memberCount - 1;
+    title.textContent     = `Remove ${esc(baby.name)}?`;
+    text.textContent      = `This tracker is shared with ${others} other device${others === 1 ? '' : 's'}. You can remove it from your device — the others will keep full access.`;
+    removeBtn.textContent = 'Remove from my device';
+    removeBtn.classList.remove('hidden');
+    permBtn.classList.add('hidden');
+    return;
+  }
+
+  // D2 / D5 — I'm the only (or last) member. Permanent delete is safe.
+  title.textContent     = `Delete ${esc(baby.name)}?`;
+  text.textContent      = "You're the only device with access. All tracking data will be permanently deleted from the cloud and from this device.";
+  permBtn.textContent   = 'Delete permanently';
+  permBtn.disabled      = false;
+  permBtn.classList.remove('hidden');
+  removeBtn.textContent = 'Remove from my device only';
+  removeBtn.classList.remove('hidden');
 }
 
 async function executeRemoveFromDevice() {
   const token = _deleteBabyToken;
+  if (!token) return;
   _deleteBabyToken = null;
   closeModal('modal-delete-baby');
+  // Tell the cloud we left — safe no-op in local-only mode.
+  // Fire-and-forget: don't block UI if offline (write queues automatically).
+  leaveBabyAsMember(token);
   removeBabyLocally(token);
   await afterBabyDeleted(token);
   showToast('Removed from this device');
@@ -304,8 +359,10 @@ async function executeRemoveFromDevice() {
 
 async function executeDeletePermanently() {
   const token = _deleteBabyToken;
+  if (!token) return;
   _deleteBabyToken = null;
   closeModal('modal-delete-baby');
+  // Firestore writes queue via offline persistence — safe to call while offline.
   await deleteBabyPermanently(token);
   await afterBabyDeleted(token);
   showToast('Baby deleted');
@@ -442,6 +499,9 @@ async function handleJoinConfirm() {
   setActiveToken(_joinToken);
   ST.token   = _joinToken;
   ST.baby    = info;
+  // Register this device as a member so the delete flow can detect
+  // that others still have access.
+  joinBabyAsMember(_joinToken);
   _joinToken = null;
 
   closeModal('modal-join');
@@ -557,9 +617,13 @@ function bindEvents() {
 async function boot() {
   initFirebase();
   bindEvents();
-  // Keep cloud indicator in sync with actual network state
-  window.addEventListener('online',  updateCloudIndicator);
-  window.addEventListener('offline', updateCloudIndicator);
+  // Subscribe the header chip to the cloud state machine in db.js.
+  // Fires immediately with the current state.
+  onCloudStateChange(renderCloudIndicator);
+  // navigator.onLine transitions — re-render so the chip flips to red
+  // as soon as the device drops connectivity, without waiting for the probe.
+  window.addEventListener('online',  () => renderCloudIndicator(getCloudState()));
+  window.addEventListener('offline', () => renderCloudIndicator(getCloudState()));
   await migrateV1();
 
   const params    = new URLSearchParams(window.location.search);
@@ -578,6 +642,8 @@ async function boot() {
       setActiveToken(token);
       ST.token = token;
       ST.baby  = info;
+      // Register this device as a member (idempotent).
+      joinBabyAsMember(token);
       updateUrl(token);
       await showMainScreen();
       if (isNew) showToast(`Joined ${info.name}'s tracker!`);

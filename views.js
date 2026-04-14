@@ -170,9 +170,16 @@ function renderBabyPicker() {
     const baby = babies[tok];
     if (!baby) return;
     const isActive = tok === ST.token;
-    const btn = document.createElement('button');
-    btn.className = `picker-item${isActive ? ' active' : ''}`;
-    btn.innerHTML = `
+
+    // Use a <div> (not <button>) as the outer element — the inner delete
+    // <button> would otherwise be invalid HTML (nested interactive), which
+    // browsers silently drop, making the delete icon unclickable.
+    const row = document.createElement('div');
+    row.className = `picker-item${isActive ? ' active' : ''}`;
+    row.setAttribute('role', 'button');
+    row.setAttribute('tabindex', '0');
+    row.setAttribute('aria-label', `Switch to ${baby.name}`);
+    row.innerHTML = `
       <div class="picker-item-avatar">
         ${isActive
           ? `<span class="picker-item-check">✓</span>`
@@ -187,8 +194,8 @@ function renderBabyPicker() {
           })}
         </div>
       </div>
-      <button class="picker-item-delete" data-tok="${tok}"
-              aria-label="Delete ${esc(baby.name)}" title="${baby.shared ? 'Remove from device' : 'Delete'}">
+      <button type="button" class="picker-item-delete" data-tok="${tok}"
+              aria-label="Delete ${esc(baby.name)}" title="Delete baby">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3,6 5,6 21,6"/>
@@ -198,16 +205,19 @@ function renderBabyPicker() {
         </svg>
       </button>`;
 
-    btn.addEventListener('click', e => {
-      // Don't switch if the delete icon was clicked
+    const activate = () => { closeModal('modal-baby-picker'); switchBaby(tok); };
+    row.addEventListener('click', e => {
       if (e.target.closest('.picker-item-delete')) return;
-      closeModal('modal-baby-picker');
-      switchBaby(tok);
+      activate();
     });
-    btn.querySelector('.picker-item-delete').addEventListener('click', e => {
+    row.addEventListener('keydown', e => {
+      if (e.target.closest('.picker-item-delete')) return;
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+    });
+    row.querySelector('.picker-item-delete').addEventListener('click', e => {
       e.stopPropagation();
       promptDeleteBaby(tok);
     });
-    list.appendChild(btn);
+    list.appendChild(row);
   });
 }

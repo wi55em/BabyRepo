@@ -1417,6 +1417,58 @@ img { max-width: 100%; display: block; }
 }
 
 /* ══════════════════════════════════════════
+   CLOUD SYNC INDICATOR
+   ══════════════════════════════════════════ */
+.cloud-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--feed-bg);
+  border: 1.5px solid #A7F3D0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--feed);
+  white-space: nowrap;
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), opacity var(--transition);
+}
+
+.cloud-indicator.cloud-offline {
+  background: var(--dirty-bg);
+  border-color: var(--dirty-border);
+  color: var(--dirty);
+}
+
+.cloud-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.cloud-indicator:not(.cloud-offline) .cloud-dot {
+  animation: pulse 2.5s ease infinite;
+}
+
+.cloud-label {
+  line-height: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cloud-indicator {
+    background: rgba(52, 211, 153, 0.1);
+    border-color: rgba(52, 211, 153, 0.3);
+  }
+  .cloud-indicator.cloud-offline {
+    background: rgba(217, 119, 6, 0.1);
+    border-color: rgba(217, 119, 6, 0.3);
+  }
+}
+
+/* ══════════════════════════════════════════
    DELETE BABY
    ══════════════════════════════════════════ */
 .settings-danger-zone {

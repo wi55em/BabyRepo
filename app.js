@@ -66,6 +66,28 @@ async function handleSetupSubmit(e) {
 }
 
 /* ════════════════════════════════════════
+   CLOUD INDICATOR
+   ════════════════════════════════════════ */
+function updateCloudIndicator() {
+  const el = document.getElementById('cloud-indicator');
+  if (!el) return;
+  if (!USE_FIREBASE) {
+    el.classList.add('hidden');
+    return;
+  }
+  const online = navigator.onLine;
+  el.classList.remove('hidden', 'cloud-offline');
+  if (!online) {
+    el.classList.add('cloud-offline');
+    el.title       = 'Offline — changes will sync when reconnected';
+    el.querySelector('.cloud-label').textContent = 'Offline';
+  } else {
+    el.title       = 'Cloud sync active — data syncs across all devices';
+    el.querySelector('.cloud-label').textContent = 'Sharing on';
+  }
+}
+
+/* ════════════════════════════════════════
    MAIN SCREEN
    ════════════════════════════════════════ */
 async function showMainScreen() {
@@ -81,6 +103,7 @@ async function showMainScreen() {
   multi.textContent = count > 1 ? `${count} babies` : '';
   multi.classList.toggle('hidden', count <= 1);
 
+  updateCloudIndicator();
   renderDaysList(ST.token, ST.baby);
   showScreen('screen-main');
 }
@@ -534,6 +557,9 @@ function bindEvents() {
 async function boot() {
   initFirebase();
   bindEvents();
+  // Keep cloud indicator in sync with actual network state
+  window.addEventListener('online',  updateCloudIndicator);
+  window.addEventListener('offline', updateCloudIndicator);
   await migrateV1();
 
   const params    = new URLSearchParams(window.location.search);
@@ -546,6 +572,7 @@ async function boot() {
     clearUrlParams();
     const info = await fetchBabyInfo(token);
     if (info) {
+      const isNew = !getKnownTokens().includes(token); // check BEFORE addKnownToken
       addKnownToken(token);
       setCachedBaby(token, info);
       setActiveToken(token);
@@ -553,9 +580,7 @@ async function boot() {
       ST.baby  = info;
       updateUrl(token);
       await showMainScreen();
-      if (!getKnownTokens().includes(token)) {
-        showToast(`Joined ${info.name}'s tracker!`);
-      }
+      if (isNew) showToast(`Joined ${info.name}'s tracker!`);
       return;
     }
     showToast('Link not found — start a new tracker below.');

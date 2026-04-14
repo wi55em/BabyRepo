@@ -88,7 +88,10 @@ async function updateBabyInfo(token, fields) {
   const info = Object.assign({}, getCachedBaby(token), fields);
   setCachedBaby(token, info);
   if (USE_FIREBASE) {
-    try { await db.collection('babies').doc(token).update(fields); } catch { /* offline */ }
+    try {
+      // Use set+merge so it works even if the doc doesn't exist in Firestore yet
+      await db.collection('babies').doc(token).set(fields, { merge: true });
+    } catch (e) { console.warn('updateBabyInfo failed:', e); }
   }
   return info;
 }

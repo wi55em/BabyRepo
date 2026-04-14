@@ -390,23 +390,10 @@
   <!-- Toast -->
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
-  <!-- Firebase SDK (compat) — loaded only if config is present -->
+  <!-- Firebase SDK — initFirebase() in db.js won't activate unless config is filled in -->
   <script src="firebase-config.js"></script>
-  <script>
-    // Only load Firebase SDK if a projectId is configured
-    (function() {
-      var cfg = window.FIREBASE_CONFIG;
-      if (!cfg || !cfg.projectId) return;
-      var s1 = document.createElement('script');
-      s1.src = 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js';
-      s1.async = false;
-      document.head.appendChild(s1);
-      var s2 = document.createElement('script');
-      s2.src = 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js';
-      s2.async = false;
-      document.head.appendChild(s2);
-    })();
-  </script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
   <script src="db.js"></script>
   <script src="utils.js"></script>
   <script src="views.js"></script>

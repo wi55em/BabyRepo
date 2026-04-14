@@ -209,6 +209,11 @@ function openSettingsModal() {
   document.getElementById('settings-name').value = ST.baby.name;
   document.getElementById('settings-date').value = date;
   document.getElementById('settings-time').value = (time || '').slice(0, 5);
+
+  // Label the delete button based on shared state
+  const label = document.getElementById('delete-current-baby-label');
+  label.textContent = ST.baby.shared ? 'Remove from my device' : 'Delete Baby';
+
   openModal('modal-settings');
 }
 
@@ -223,6 +228,82 @@ async function handleSettingsSubmit(e) {
   closeModal('modal-settings');
   await showMainScreen();
   showToast('Settings saved');
+}
+
+/* ════════════════════════════════════════
+   DELETE / REMOVE BABY
+   ════════════════════════════════════════ */
+let _deleteBabyToken = null;
+
+function promptDeleteBaby(token) {
+  const baby = getCachedBaby(token);
+  if (!baby) return;
+  _deleteBabyToken = token;
+
+  const title   = document.getElementById('delete-baby-title');
+  const text    = document.getElementById('delete-baby-text');
+  const permBtn = document.getElementById('btn-delete-baby-perm');
+  const removeBtn = document.getElementById('btn-remove-device-baby');
+
+  const isShared = !!(baby.shared);
+
+  if (isShared) {
+    // Someone else may have the link — only offer local removal
+    title.textContent   = `Remove ${baby.name}?`;
+    text.textContent    = 'This tracker has been shared. Removing it from your device keeps all data intact — others with the link can still access it.';
+    removeBtn.textContent = 'Remove from my device';
+    removeBtn.classList.remove('hidden');
+    permBtn.classList.add('hidden');
+  } else {
+    // Never shared — safe to delete from Firestore entirely
+    title.textContent   = `Delete ${baby.name}?`;
+    text.textContent    = USE_FIREBASE
+      ? 'This tracker has never been shared. All data will be permanently deleted.'
+      : 'All tracking data will be permanently lost.';
+    permBtn.textContent = 'Delete permanently';
+    permBtn.classList.remove('hidden');
+    removeBtn.classList.add('hidden');
+  }
+
+  closeModal('modal-settings');
+  closeModal('modal-baby-picker');
+  openModal('modal-delete-baby');
+}
+
+async function executeRemoveFromDevice() {
+  const token = _deleteBabyToken;
+  _deleteBabyToken = null;
+  closeModal('modal-delete-baby');
+  removeBabyLocally(token);
+  await afterBabyDeleted(token);
+  showToast('Removed from this device');
+}
+
+async function executeDeletePermanently() {
+  const token = _deleteBabyToken;
+  _deleteBabyToken = null;
+  closeModal('modal-delete-baby');
+  await deleteBabyPermanently(token);
+  await afterBabyDeleted(token);
+  showToast('Baby deleted');
+}
+
+async function afterBabyDeleted(deletedToken) {
+  // If we deleted the active baby, switch to another or go to setup
+  if (ST.token === deletedToken) {
+    unsubscribeDayData();
+    ST.token = null;
+    ST.baby  = null;
+    const remaining = getKnownTokens();
+    if (remaining.length) {
+      await switchBaby(remaining[0]);
+    } else {
+      openSetupScreen('new');
+    }
+  } else {
+    // Refresh picker if it was open, or just re-render main if visible
+    renderDaysList(ST.token, ST.baby);
+  }
 }
 
 /* ════════════════════════════════════════
@@ -269,7 +350,6 @@ async function copyShareLink() {
   try {
     await navigator.clipboard.writeText(link);
   } catch {
-    // Fallback for older browsers
     const inp = document.createElement('input');
     inp.value = link;
     document.body.appendChild(inp);
@@ -277,6 +357,9 @@ async function copyShareLink() {
     document.execCommand('copy');
     document.body.removeChild(inp);
   }
+  // Mark baby as shared so deletion won't wipe Firestore for other users
+  await markBabyAsShared(ST.token);
+  ST.baby = getCachedBaby(ST.token);
   showToast('Link copied!');
 }
 
@@ -395,6 +478,19 @@ function bindEvents() {
   });
   document.getElementById('btn-picker-join').addEventListener('click', openJoinModal);
 
+  // Delete baby — from settings modal
+  document.getElementById('btn-delete-current-baby').addEventListener('click', () => {
+    closeModal('modal-settings');
+    promptDeleteBaby(ST.token);
+  });
+  // Delete baby confirm modal
+  document.getElementById('btn-cancel-delete-baby').addEventListener('click', () => {
+    _deleteBabyToken = null;
+    closeModal('modal-delete-baby');
+  });
+  document.getElementById('btn-remove-device-baby').addEventListener('click', executeRemoveFromDevice);
+  document.getElementById('btn-delete-baby-perm').addEventListener('click', executeDeletePermanently);
+
   // Share
   document.getElementById('btn-close-share').addEventListener('click', () => closeModal('modal-share'));
   document.getElementById('btn-copy-link').addEventListener('click', copyShareLink);
@@ -411,7 +507,7 @@ function bindEvents() {
 
   // Close modals by clicking the overlay backdrop
   ['modal-settings', 'modal-feeding', 'modal-confirm',
-   'modal-baby-picker', 'modal-share', 'modal-join'].forEach(id => {
+   'modal-baby-picker', 'modal-share', 'modal-join', 'modal-delete-baby'].forEach(id => {
     document.getElementById(id).addEventListener('click', e => {
       if (e.target === e.currentTarget) closeModal(id);
     });
@@ -421,7 +517,7 @@ function bindEvents() {
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     const modals = ['modal-feeding', 'modal-settings', 'modal-confirm',
-                    'modal-baby-picker', 'modal-share', 'modal-join'];
+                    'modal-baby-picker', 'modal-share', 'modal-join', 'modal-delete-baby'];
     for (const id of modals) {
       if (!document.getElementById(id).classList.contains('hidden')) {
         if (id === 'modal-confirm') ST.pendingDelId = null;

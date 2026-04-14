@@ -93,6 +93,47 @@ async function updateBabyInfo(token, fields) {
   return info;
 }
 
+/** Called when the share link is first copied — marks baby as shared in Firestore. */
+async function markBabyAsShared(token) {
+  const baby = getCachedBaby(token);
+  if (baby && baby.shared) return; // already marked
+  await updateBabyInfo(token, { shared: true });
+}
+
+/** Remove baby from this device only (localStorage). Firestore data is preserved. */
+function removeBabyLocally(token) {
+  const known = getKnownTokens().filter(t => t !== token);
+  lsSet(LS.KNOWN, known);
+  const babies = getCachedBabies();
+  delete babies[token];
+  lsSet(LS.BABIES, babies);
+  const days = getAllCachedDays();
+  delete days[token];
+  lsSet(LS.DAYS, days);
+  if (getActiveToken() === token) localStorage.removeItem(LS.ACTIVE);
+}
+
+/**
+ * Permanently delete a baby from Firestore (all days subcollection + baby doc)
+ * and from local storage. Only call this when baby.shared is falsy.
+ */
+async function deleteBabyPermanently(token) {
+  removeBabyLocally(token);
+  if (!USE_FIREBASE) return;
+  try {
+    // Delete all day documents first (Firestore doesn't cascade-delete subcollections)
+    const daysSnap = await db.collection('babies').doc(token).collection('days').get();
+    if (!daysSnap.empty) {
+      const batch = db.batch();
+      daysSnap.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+    }
+    await db.collection('babies').doc(token).delete();
+  } catch (e) {
+    console.warn('Firestore delete failed:', e);
+  }
+}
+
 /* ════════════════════════════════════════
    DATA LAYER — DAYS
    ════════════════════════════════════════ */

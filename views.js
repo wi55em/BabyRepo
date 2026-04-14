@@ -186,10 +186,27 @@ function renderBabyPicker() {
             month: 'short', day: 'numeric', year: 'numeric'
           })}
         </div>
-      </div>`;
-    btn.addEventListener('click', () => {
+      </div>
+      <button class="picker-item-delete" data-tok="${tok}"
+              aria-label="Delete ${esc(baby.name)}" title="${baby.shared ? 'Remove from device' : 'Delete'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3,6 5,6 21,6"/>
+          <path d="M19,6l-1,14H6L5,6"/>
+          <path d="M10,11v6"/><path d="M14,11v6"/>
+          <path d="M9,6V4h6v2"/>
+        </svg>
+      </button>`;
+
+    btn.addEventListener('click', e => {
+      // Don't switch if the delete icon was clicked
+      if (e.target.closest('.picker-item-delete')) return;
       closeModal('modal-baby-picker');
       switchBaby(tok);
+    });
+    btn.querySelector('.picker-item-delete').addEventListener('click', e => {
+      e.stopPropagation();
+      promptDeleteBaby(tok);
     });
     list.appendChild(btn);
   });

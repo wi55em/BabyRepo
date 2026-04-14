@@ -1417,40 +1417,62 @@ img { max-width: 100%; display: block; }
 }
 
 /* ══════════════════════════════════════════
-   CLOUD SYNC INDICATOR
+   CLOUD SYNC INDICATOR — 3-state traffic light
+     .cloud-pending    pulsing orange   "Connecting…"
+     .cloud-connected  pulsing green    "Sharing on"
+     .cloud-offline    solid red        "Offline"
+     .cloud-error      solid red        "Connection failed"
    ══════════════════════════════════════════ */
 .cloud-indicator {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   padding: 4px 10px;
   border-radius: 20px;
-  background: var(--feed-bg);
-  border: 1.5px solid #A7F3D0;
   font-size: 12px;
   font-weight: 600;
-  color: var(--feed);
   white-space: nowrap;
+  border: 1.5px solid transparent;
+  background: transparent;
+  color: inherit;
   transition: background var(--transition), border-color var(--transition),
               color var(--transition), opacity var(--transition);
 }
 
-.cloud-indicator.cloud-offline {
-  background: var(--dirty-bg);
-  border-color: var(--dirty-border);
-  color: var(--dirty);
+.cloud-indicator.cloud-pending {
+  background: #FEF3C7;
+  border-color: #FCD34D;
+  color: #B45309;
+}
+.cloud-indicator.cloud-connected {
+  background: #D1FAE5;
+  border-color: #A7F3D0;
+  color: #047857;
+}
+.cloud-indicator.cloud-offline,
+.cloud-indicator.cloud-error {
+  background: #FEE2E2;
+  border-color: #FCA5A5;
+  color: #B91C1C;
 }
 
 .cloud-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: currentColor;
   flex-shrink: 0;
 }
 
-.cloud-indicator:not(.cloud-offline) .cloud-dot {
-  animation: pulse 2.5s ease infinite;
+/* Only pending + connected pulse. Red states (offline/error) stay solid. */
+.cloud-indicator.cloud-pending   .cloud-dot,
+.cloud-indicator.cloud-connected .cloud-dot {
+  animation: cloudPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes cloudPulse {
+  0%, 100% { opacity: 1;   transform: scale(1);   }
+  50%      { opacity: 0.35; transform: scale(0.6); }
 }
 
 .cloud-label {
@@ -1458,13 +1480,21 @@ img { max-width: 100%; display: block; }
 }
 
 @media (prefers-color-scheme: dark) {
-  .cloud-indicator {
-    background: rgba(52, 211, 153, 0.1);
-    border-color: rgba(52, 211, 153, 0.3);
+  .cloud-indicator.cloud-pending {
+    background: rgba(251, 191, 36, 0.12);
+    border-color: rgba(251, 191, 36, 0.35);
+    color: #FCD34D;
   }
-  .cloud-indicator.cloud-offline {
-    background: rgba(217, 119, 6, 0.1);
-    border-color: rgba(217, 119, 6, 0.3);
+  .cloud-indicator.cloud-connected {
+    background: rgba(52, 211, 153, 0.12);
+    border-color: rgba(52, 211, 153, 0.35);
+    color: #6EE7B7;
+  }
+  .cloud-indicator.cloud-offline,
+  .cloud-indicator.cloud-error {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #FCA5A5;
   }
 }
 

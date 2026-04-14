@@ -23,10 +23,10 @@
  *     }
  */
 window.FIREBASE_CONFIG = {
-  apiKey:            "",
-  authDomain:        "",
-  projectId:         "",
-  storageBucket:     "",
-  messagingSenderId: "",
-  appId:             ""
+  apiKey: "AIzaSyCnrGE__MgycGuGl1g8f3k8dZe2CzCRklw",
+  authDomain: "babyrepo-984e8.firebaseapp.com",
+  projectId: "babyrepo-984e8",
+  storageBucket: "babyrepo-984e8.firebasestorage.app",
+  messagingSenderId: "985910728334",
+  appId: "1:985910728334:web:6e1f80a1222b7a02519bdf"
 };
